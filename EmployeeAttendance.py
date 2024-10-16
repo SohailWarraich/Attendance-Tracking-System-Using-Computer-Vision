@@ -12,7 +12,7 @@ from ultralytics import YOLO
 # model = torch.hub.load('ultralytics/yolov5', 'yolov8')
 model = YOLO("yolov8n")
 model.classes = [0]
-model.conf = 0.50
+model.conf = 0.85
 
 # Initialize VidepCapture and get video FPS
 cap = cv2.VideoCapture("input_video/employee.mp4")
@@ -71,7 +71,7 @@ while True:
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             # Calculate the center point of the bounding box
             center_x = ((x1 + x2) / 2)
-            center_y = y2 - 20
+            center_y = y2 - 40
             center_point = (int(center_x), int(center_y))
             detection_points.append((int(center_x), int(center_y)))
 
@@ -79,12 +79,12 @@ while True:
             circle_color = (0, 120, 0)  # Green color in BGR
 
             result = cv2.pointPolygonTest(np.array(roi_coords, dtype=np.int32), center_point, False)
-
+            idx = id
             if result > 0 and idx == id:
                 cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 120, 255), 1)
                 detections_counter += 1
                 # if delayCounter == 10 or delayCounter == 49 or delayCounter == 173:
-                if delayCounter == 20 or delayCounter == 40:
+                if delayCounter == 6 or delayCounter == 10:
                     # Extract the person's bounding box
                     person = frame[y1:y2, x1:x2]
                     # Convert the person bounding box to grayscale for face detection
@@ -115,7 +115,7 @@ while True:
                     frame[y_offset:y_offset + height, 40:width + 40] = image
             else:
                 cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 255, 255), 1, lineType=cv2.LINE_AA)
-                idx = id
+                # idx = id
                 # idx = id + 1
 
             if len(resetCounter) > 1:

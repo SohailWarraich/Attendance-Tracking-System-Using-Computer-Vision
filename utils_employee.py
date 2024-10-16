@@ -23,7 +23,7 @@ def detect_faces(person):
 # media pipe
 
 mp_face_detection = mp.solutions.face_detection
-face_detection = mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.6)
+face_detection = mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5)
 
 def detect_faces_mediapipe(image):
     # Convert the image color to RGB for MediaPipe processing
