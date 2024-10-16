@@ -4,22 +4,23 @@ import cv2
 import numpy as np
 import datetime
 import os
-
+import time
+from utils_employee import detect_faces, detect_faces_mediapipe
 
 # Yolov5s Model for Person Detection
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 model.classes = [0]
-model.conf = 0.80
-
-# Create a Haar Cascade Classifier for face detection
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Replace with the correct path
+model.conf = 0.60
 
 # Initialize VidepCapture and get video FPS
 cap = cv2.VideoCapture("input_video/employee.mp4")
 fps = cap.get(cv2.CAP_PROP_FPS)
+# Get frame dimensions
+frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 # Define Region of Interest Coordinates
-roi_coords = [(44, 127), (46, 573), (288, 581), (286, 126)]
+roi_coords = [(57, 508), (52, 638), (300, 639), (287, 515)]
 # roi_coords2 = [(529, 501), (930, 524), (914, 703), (368, 645)]
 
 # Counter number of detections inside ROI
@@ -30,9 +31,10 @@ delayCounter = 0
 resetCounter = []
 
 # To write output video in mp4 format
-out_vid = os.path.join("images" + f"/output.mp4")
-out = cv2.VideoWriter(out_vid, cv2.VideoWriter.fourcc(*'.mp4'), fps/2, (1280,720))
-
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4 file format
+out = cv2.VideoWriter('output_video.mp4', fourcc, fps, (frame_width, frame_height))
+face_count = 0
+last_save_time = time.time()
 while True:
     ret, frame = cap.read()
 
@@ -80,14 +82,22 @@ while True:
                 # Convert the person bounding box to grayscale for face detection
                 gray_person = cv2.cvtColor(person, cv2.COLOR_BGR2GRAY)
                 # Perform face detection within the person bounding box using Haar Cascade
-                faces = face_cascade.detectMultiScale(gray_person, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                # faces = detect_faces(person)
+                faces = detect_faces_mediapipe(person)
                 for (fx, fy, fw, fh) in faces:
-                    # Adjust the face coordinates based on the person's bounding box
-                    fx1, fy1, fx2, fy2 = x1 + fx, y1 + fy, x1 + fx + fw, y1 + fy + fh
-                    # Extract the face
-                    face = frame[fy1-5:fy2+5, fx1-5:fx2+5]
-                    # Save the passport-sized photo as a separate image
-                    cv2.imwrite(f'output/face.jpg', face)
+                    if time.time() - last_save_time >= 1:
+                        # Adjust the face coordinates based on the person's bounding box
+                        fx1, fy1, fx2, fy2 = x1 + fx, y1 + fy, x1 + fx + fw, y1 + fy + fh
+                        # Extract the face
+                        face = frame[fy1 - 5:fy2 + 5, fx1 - 5:fx2 + 5]
+        
+                        # Save each face with a unique name
+                        face_filename = f'output/face_{face_count}.jpg'
+                        cv2.imwrite(face_filename, face)
+                        face_count += 1  # Increment the counter for unique filenames
+
+                        # Update the last save time to the current time
+                        last_save_time = time.time()
 
             if len(face_images) > 0:
                 y_offset = 40
@@ -106,8 +116,10 @@ while True:
                 except: pass
             else:
                 delayCounter += 1
-
+    out.write(frame)
     cv2.imshow("Camera-1", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
-# out.release()
+cap.release()
+out.release()
+cv2.destroyAllWindows()
