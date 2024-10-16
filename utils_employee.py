@@ -1,6 +1,17 @@
 import cv2
 import mediapipe as mp
 
+# To make detections and get required outputs
+def YOLO_Detection(model, frame, conf=0.35):
+    # Perform inference on an image
+    results = model.track(frame, conf=conf, classes = [0,2])
+    # Extract bounding boxes, classes, names, and confidences
+    boxes = results[0].boxes.xyxy.tolist()
+    classes = results[0].boxes.cls.tolist()
+    names = results[0].names
+    ids = results[0].boxes.id
+    return boxes, classes, names, ids
+
 # Load the Haar Cascade Classifier
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Replace with the correct path
 
