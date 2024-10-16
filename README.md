@@ -1,6 +1,9 @@
 # Employee Attendance System - v1
 
 This is the initial version (v1) of the Employee Attendance System, which uses computer vision for employee tracking and face detection.
+In this version, the system captures an employee's face when they approach the specified region of interest (ROI).
+The detected face is displayed on the screen, preparing the system for future upgrades to save faces and track identities.
+Planned Feature: In later versions, these faces or their identities can be saved in a database for attendance record-keeping.
 
 ## Features
 YOLO Detection: Utilizes the YOLO model to detect people and vehicles (class IDs 0 and 2).
@@ -19,14 +22,10 @@ Region of Interest (ROI) Selection:
 Function: Allows users to select ROI points in the video feed where face recognition or detection will occur, focusing the attendance system on specific areas.
 Attendance Capture:
 
-In this version, the system captures an employee's face when they approach the specified region of interest (ROI).
-The detected face is displayed on the screen, preparing the system for future upgrades to save faces and track identities.
-Planned Feature: In later versions, these faces or their identities can be saved in a database for attendance record-keeping.
-
 ## Setup
 Install the required libraries:
 
-` pip install opencv-python mediapipe
+`pip install opencv-python mediapipe   
 Ensure you have the YOLO model weights and haarcascade_frontalface_default.xml for face detection with Haar Cascade.
 
 Place utils_employee.py and get_roi_points.py in the same directory.
